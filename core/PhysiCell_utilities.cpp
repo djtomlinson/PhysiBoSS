@@ -196,6 +196,11 @@ double LogNormalRandom( double mean, double standard_deviation )
 	return exp(NormalRandom(log(mean), standard_deviation));
 }
 
+double LogNormalRandom( double mean, double standard_deviation )
+{
+	return exp(NormalRandom(log(mean), standard_deviation));
+}
+
 std::vector<double> UniformOnUnitSphere( void )
 {
 	std::vector<double> output = {0,0,0}; 
