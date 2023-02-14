@@ -83,7 +83,7 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
+	cell_defaults.functions.update_velocity = custom_update_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -261,7 +261,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 
 void set_substrate_density( void )
 {
-	std::cout << " uwu SETTING SUBSTRATE \n";
+
 	// Inject given concentration on the extremities only
 
 	double minim = 20;
@@ -289,30 +289,14 @@ void set_substrate_density( void )
 			exit(-1);
 		};
 		/*std::vector<double> position = { data[0] , data[1] , data[2] }; */
-
-
-
-
-		std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
-
+		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
 		microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] = maxim;
-
-		std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
-
-		std::cout << microenvironment.find_density_index("ecm") << std::endl;
-
-
-
-
+		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
+		//std::cout << microenvironment.find_density_index("ecm") << std::endl;
 	}
 
 	file.close(); 	
-
 	return;
-
-
-
-
 	// std::cout << microenvironment.number_of_voxels() << "\n";
 	// #pragma omp parallel for
 	// for (int n = 0; n < microenvironment.number_of_voxels(); n++)
@@ -337,6 +321,175 @@ void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& 
 
 double current_value( double min, double max, double percent )
 { return (min + (max-min) * percent); };
+
+double add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
+{
+	// Check if there is ECM material in given voxel
+	// double dens2 = pC->get_microenvironment()->density_vector(index_voxel)[index_ecm];
+	double dens = pC->get_microenvironment()->nearest_density_vector(index_voxel)[index_ecm];
+	double ecmrad = sqrt(3.0) * pC->get_microenvironment()->mesh.dx / 2.0;
+	// if voxel is "full", density is 1
+	dens = std::min( dens, 1.0 ); 
+	if ( dens > EPSILON )
+	{
+		// Distance between agent center and ECM voxel center
+		pC->displacement = pC->position - pC->get_container()->underlying_mesh.voxels[index_voxel].center;
+		double distance = norm(pC->displacement);
+		// Make sure that the distance is not zero
+		distance = std::max(distance, EPSILON);
+		
+		double dd = pC->phenotype.geometry.radius + ecmrad;  
+		double dnuc = pC->phenotype.geometry.nuclear_radius + ecmrad;  
+
+		double tmp_r = 0;
+		// Cell overlap with ECM node, add a repulsion term
+		if ( distance < dd )
+		{
+			// repulsion stronger if nucleii overlap, see Macklin et al. 2012, 2.3.1
+			if ( distance < dnuc )
+			{
+				double M = 1.0;
+				double c = 1.0 - dnuc/dd;
+				c *= c;
+				c -= M;
+				tmp_r = c*distance/dnuc + M;
+				pC->custom_data["nucleus_deform"] += (dnuc-distance);
+			}
+			else
+			{
+				tmp_r = ( 1 - distance / dd );
+				tmp_r *= tmp_r;
+			}
+
+			tmp_r *= dens * PhysiCell::parameters.doubles("cell_ecm_repulsion");
+		}
+
+		// // Cell adherence to ECM through integrins
+		// double max_interactive_distance = (PhysiCell::parameters.doubles("max_interaction_factor")*pC->phenotype.geometry.radius) + ecmrad;
+		// if ( distance < max_interactive_distance ) 
+		// {	
+		// 	double temp_a = 1 - distance/max_interactive_distance; 
+		// 	temp_a *= temp_a; 
+		// 	/* \todo change dens with a maximal density ratio ? */
+		// 	pC->custom_data["ecm_contact"] += dens * (max_interactive_distance-distance);
+		// 	// temp_a *= dens * ( static_cast<Cell*>(this) )->integrinStrength();
+
+		// 	double temp_integrins = get_integrin_strength( pC->custom_data["integrin"] );
+
+		// 	temp_a *= dens * temp_integrins;
+			
+		// 	tmp_r -= temp_a;
+		// }
+		
+		/////////////////////////////////////////////////////////////////
+		// if (tmp_r==0) 
+		// 	return;
+
+		tmp_r/=distance;
+
+	
+		double zeroo = 0;
+
+		if (tmp_r != 0){
+			
+			pC->velocity = zeroo * pC->displacement;
+			pC -> phenotype.motility.motility_vector.assign( 0, 0);
+
+		}
+
+
+		
+		// std::cout << "JJJJJJJJJJ" << pC->velocity << std::endl;
+
+		return tmp_r;
+	}
+}
+
+void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
+{
+	pCell->custom_data["ecm_contact"] = 0;
+	pCell->custom_data["nucleus_deform"] = 0;
+	
+	if( pCell->functions.add_cell_basement_membrane_interactions )
+	{
+		pCell->functions.add_cell_basement_membrane_interactions(pCell, phenotype,dt);
+	}
+	
+	pCell->state.simple_pressure = 0.0; 
+	
+	//First check the neighbors in my current voxel
+	for( auto neighbor : pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()] )
+	{
+		pCell->add_potentials( neighbor );
+	}
+
+	pCell->state.simple_pressure = 0.0; 
+	pCell->state.neighbors.clear(); // new 1.8.0
+
+	std::vector<Cell*>::iterator neighbor;
+	std::vector<Cell*>::iterator end = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
+	for(neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
+	{
+		pCell->add_potentials(*neighbor);
+	}
+	std::vector<int>::iterator neighbor_voxel_index;
+	std::vector<int>::iterator neighbor_voxel_index_end = 
+		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+
+	for( neighbor_voxel_index = 
+		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
+		neighbor_voxel_index != neighbor_voxel_index_end; 
+		++neighbor_voxel_index )
+	{
+		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+			continue;
+		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
+		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
+		{
+			pCell->add_potentials(*neighbor);
+		}
+	}
+
+	int ecm_index = BioFVM::microenvironment.find_density_index("ecm");
+	if ( ecm_index >= 0 ){
+		double tmp_r2 = add_ecm_interaction( pCell, ecm_index, pCell->get_current_mechanics_voxel_index() );
+		double owo = 0;
+
+		if ( tmp_r2 != 0 ){
+			// pCell -> phenotype.motility.motility_vector.assign( 0, 0);
+			// std::cout << pCell -> velocity << "uwuwuwuwuw" << std::endl;
+			pCell->velocity = owo * pCell->displacement;
+			
+		} else {
+
+			
+			pCell->update_motility_vector(dt);
+	//std::cout << pCell->state.simple_pressure << " \n ";
+			pCell->velocity += phenotype.motility.motility_vector;
+			
+		}
+		
+		return;
+	}
+/*
+	if (pCell->custom_data["freezed"] > 2){
+		return ;
+	}
+*/
+	
+
+
+	
+	return; 
+}
+
+
+
+
+
+
+
+
 
 void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*), std::string sub )
 {

@@ -96,7 +96,10 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt );
 
 void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt ); 
 
+static const double EPSILON = std::numeric_limits<double>::epsilon();
 void set_substrate_density( void );
+double add_ecm_interaction( Cell* pCell, int index_ecm, int index_voxel );
+void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt);
 
 double current_value( double min, double max, double percent );
 

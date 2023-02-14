@@ -13,7 +13,7 @@
 	</domain>
 	
 	<overall>
-		<max_time units="min">45</max_time> 
+		<max_time units="min">2100</max_time> 
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 	
@@ -30,12 +30,12 @@
 		<folder>output</folder>  
 
 		<full_data>
-			<interval units="min">10</interval>
+			<interval units="min">60</interval>
 			<enable>true</enable>
 		</full_data>
 		
 		<SVG>
-			<interval units="min">10</interval>
+			<interval units="min">60</interval>
 			<enable>true</enable>
 		</SVG>
 		
@@ -534,7 +534,15 @@
 
           </phenotype>
         <custom_data>
-          <sample units="dimensionless" conserved="false" description="">1.0</sample>
+        <sample units="dimensionless" conserved="false" description="">1.0</sample>
+
+
+				<nucleus_deform type="double" units="">0</nucleus_deform>
+				<ecm_contact type="double" units="">0</ecm_contact>
+				<TGFbeta_contact type="double" units="">0</TGFbeta_contact>
+				<cell_contact type="double" units="">0.6</cell_contact>
+				<passive type="bool" units="">1</passive>
+
         </custom_data>
       </cell_definition>
 
@@ -551,7 +559,8 @@
 
     <substrate_to_monitor type="string" units="">ecm</substrate_to_monitor> 
 		<random_seed type="int" units="dimensionless" description="">0</random_seed>
-        <number_of_cells type="int" units="none" description="">0</number_of_cells>
+    <number_of_cells type="int" units="none" description="">0</number_of_cells>
+    <cell_ecm_repulsion type="double" units="" description="change the value of ECM repulsion"> 0.1 </cell_ecm_repulsion>
     </user_parameters>
 	
 </PhysiCell_settings>
