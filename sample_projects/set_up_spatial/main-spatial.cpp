@@ -74,6 +74,7 @@
 #include <fstream>
 
 #include "./core/PhysiCell.h"
+#include "./core/PhysiCell_constants.h"
 #include "./modules/PhysiCell_standard_modules.h" 
 
 // put custom code modules here! 
@@ -103,7 +104,7 @@ int main( int argc, char* argv[] )
 	{ exit(-1); }
 	
 	// copy config file to output directry 
-	system( copy_command ); 
+	// system( copy_command ); 
 	
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);

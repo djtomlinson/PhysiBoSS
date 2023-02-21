@@ -556,7 +556,10 @@
 	</initial_conditions>	
 	
 	<user_parameters>
-
+		<read_init type="bool">true</read_init>
+    <blood_source_file type="string" units="">./config/setup_endo_norm.tsv</blood_source_file>
+    <o2_conc type="double" units="" description="O2 appearing in the bloos vessels"> 38.06 </o2_conc>
+    <ecm_density_file type="string" units="">./config/setup_ecm.tsv</ecm_density_file>
     <substrate_to_monitor type="string" units="">ecm</substrate_to_monitor> 
 		<random_seed type="int" units="dimensionless" description="">0</random_seed>
     <number_of_cells type="int" units="none" description="">0</number_of_cells>

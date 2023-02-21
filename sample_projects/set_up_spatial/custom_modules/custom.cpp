@@ -83,6 +83,7 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
+	// cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 	cell_defaults.functions.update_velocity = custom_update_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
@@ -129,44 +130,100 @@ void setup_microenvironment( void )
 	}
 			
 	initialize_microenvironment();
-	double o2_conc = 38.06;
-	std::vector<double> dirichlet_o2( 1 , o2_conc );
-	std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_endo_norm.csv", std::ios::in );
-
-	if( !file )
-	{ 
-		std::cout << "Error: " << "set_upf_endo_norm.csv" << " not found during cell loading. Quitting." << std::endl; 
-		exit(-1);
-	}
-	std::string line;
-
-	while (std::getline(file, line))
+	double o2_conc;
+	if ( parameters.bools("read_init") )
 	{
-		std::vector<double> data;
-		csv_to_vector( line.c_str() , data ); 
-		
-		if( data.size() != 3 )
-		{
-			std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
-			exit(-1);
-		};
-		/*std::vector<double> position = { data[0] , data[1] , data[2] }; */	
-		microenvironment.add_dirichlet_node( microenvironment.voxel_index(data[0],data[1],data[2]) , dirichlet_o2 );
+		o2_conc = parameters.doubles("o2_conc");
+	}
+	else
+	{
+		double o2_conc = 38.06;
+	}
+	std::vector<double> dirichlet_o2( 1 , o2_conc );
+	// std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_endo_norm.csv", std::ios::in );
+	// if( !file )
+	// { 
+	// 	std::cout << "Error: " << "set_upf_endo_norm.csv" << " not found during cell loading. Quitting." << std::endl; 
+	// 	exit(-1);
+	// }
+	// std::string line;
+	// while (std::getline(positions, line))
+	// {
+	// 	std::vector<double> data;
+	// 	csv_to_vector( line.c_str() , data ); 
+	// 	if( data.size() != 3 )
+	// 	{
+	// 		std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
+	// 		exit(-1);
+	// 	};
+	// 	/*std::vector<double> position = { data[0] , data[1] , data[2] }; */	
+	// 	microenvironment.add_dirichlet_node( microenvironment.voxel_index(data[0],data[1],data[2]) , dirichlet_o2 );
+	// }
+
+	std::vector<std::vector<double>> positions;
+	if ( parameters.bools("read_init") )
+	{
+		std::string csv_fname = parameters.strings("blood_source_file");
+		positions = read_cells_positions(csv_fname, '\t', true);
 	}
 
-	file.close(); 	
+	for (int i = 0; i < positions.size(); i++)
+	{
+		int x = (positions[i][0]);
+		int y = ( positions[i][1]);
+		int z = ( positions[i][2]);
+		microenvironment.add_dirichlet_node( microenvironment.voxel_index(x,y,z) , dirichlet_o2 );
+		// microenvironment.add_dirichlet_node( microenvironment.voxel_index(positions[0],positions[1],positions[2]) , dirichlet_o2 );
+	}
+	// file.close(); 	
 	microenvironment.set_substrate_dirichlet_activation( 0, true ); 
 
 	/* here we try to set up the ecm */
 
-
-
-
-
-
-
 	return; 
 }	
+
+std::vector<std::vector<double>> read_cells_positions(std::string filename, char delimiter, bool header)
+{
+	// File pointer
+	std::fstream fin;
+	std::vector<std::vector<double>> positions;
+
+	// Open an existing file
+	fin.open(filename, std::ios::in);
+
+	// Read the Data from the file
+	// as String Vector
+	std::vector<std::string> row;
+	std::string line, word;
+
+	if (header)
+	{ getline(fin, line); }
+
+	do
+	{
+		row.clear();
+		// read an entire row and
+		// store it in a string variable 'line'
+		getline(fin, line);
+		// used for breaking words
+		std::stringstream s(line);
+
+		while (getline(s, word, delimiter))
+		{ 
+			row.push_back(word); 
+		}
+
+		std::vector<double> tempPoint(3,0.0);
+		tempPoint[0]= std::stof(row[0]);
+		tempPoint[1]= std::stof(row[1]);
+		tempPoint[2]= std::stof(row[2]);
+
+		positions.push_back(tempPoint);
+	} while (!fin.eof());
+
+	return positions;
+}
 
 void setup_tissue( void )
 {
@@ -262,40 +319,48 @@ std::vector<std::string> regular_colors( Cell* pCell )
 void set_substrate_density( void )
 {
 
-	// Inject given concentration on the extremities only
-
-	double minim = 20;
+	// double minim = 20;
 	double maxim = 30;
 
+	// std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_ecm.csv", std::ios::in );
+	// if( !file )
+	// { 
+	// 	std::cout << "Error: " << "set_ecm.csv" << " not found during cell loading. Quitting." << std::endl; 
+	// 	exit(-1);
+	// }
 
-	std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_ecm.csv", std::ios::in );
+	std::vector<std::vector<double>> positions;
+	// if ( parameters.bools("read_init") )	{
+		std::string csv_fname = parameters.strings("ecm_density_file");
+		positions = read_cells_positions(csv_fname, '\t', true);
+	// }
 
-	if( !file )
-	{ 
-		std::cout << "Error: " << "set_ecm.csv" << " not found during cell loading. Quitting." << std::endl; 
-		exit(-1);
+	for (int i = 0; i < positions.size(); i++)
+	{
+		int x = (positions[i][0]);
+		int y = ( positions[i][1]);
+		int z = ( positions[i][2]);
+		microenvironment.density_vector(microenvironment.voxel_index(x,y,z))[microenvironment.find_density_index("ecm")] = maxim;
 	}
 
-	std::string line;
-
-	while (std::getline(file, line))
-	{
-		std::vector<double> data2;
-		csv_to_vector( line.c_str() , data2 ); 
-		
-		if( data2.size() != 3 )
-		{
-			std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
-			exit(-1);
-		};
+	// std::string line;
+	// while (std::getline(positions, line))
+	// {
+	// 	std::vector<double> data2;
+	// 	csv_to_vector( line.c_str() , data2 ); 		
+	// 	if( data2.size() != 3 )
+	// 	{
+	// 		std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
+	// 		exit(-1);
+	// 	};
 		/*std::vector<double> position = { data[0] , data[1] , data[2] }; */
 		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
-		microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] = maxim;
+		// microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] = maxim;
 		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
 		//std::cout << microenvironment.find_density_index("ecm") << std::endl;
-	}
+	// }
 
-	file.close(); 	
+	// file.close(); 	
 	return;
 	// std::cout << microenvironment.number_of_voxels() << "\n";
 	// #pragma omp parallel for
