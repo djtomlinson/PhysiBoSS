@@ -6,7 +6,7 @@
  *  Description: 
 */
 
-#include "./tnf_receptor_dynamics.h" 
+#include "./pressure_env_dynamics.h" 
 
 using namespace PhysiCell; 
 

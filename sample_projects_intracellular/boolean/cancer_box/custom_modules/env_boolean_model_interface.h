@@ -34,3 +34,5 @@ void update_phenotype_with_signaling(Cell* pCell, Phenotype& phenotype, double d
 
 // helper function to keep updated some cell custom variables
 void update_monitor_variables( Cell* pCell );
+
+double pressure_effect_growth_rate(double pressure, double hill_coeff, double pressure_half);

@@ -76,6 +76,9 @@
 #include "./core/PhysiCell.h"
 #include "./core/PhysiCell_constants.h"
 #include "./modules/PhysiCell_standard_modules.h" 
+#include "./addons/PhysiBoSS/src/maboss_intracellular.h"	
+#include "./addons/PhysiBoSS/src/maboss_network.h"
+
 #include "./custom_modules/custom.h" 
 	
 using namespace BioFVM;
@@ -90,12 +93,12 @@ int main( int argc, char* argv[] )
 	if( argc > 1 )
 	{
 		XML_status = load_PhysiCell_config_file( argv[1] ); 
-		sprintf( copy_command , "cp %s %s" , argv[1] , PhysiCell_settings.folder.c_str() ); 
+		// sprintf( copy_command , "cp %s %s" , argv[1] , PhysiCell_settings.folder.c_str() ); 
 	}
 	else
 	{
 		XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings.xml" );
-		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
+		// sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
 	}
 	if( !XML_status )
 	{ exit(-1); }
@@ -106,6 +109,9 @@ int main( int argc, char* argv[] )
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
 	
+	// PNRG setup 
+	SeedRandom( parameters.ints("random_seed") ); // or specify a seed here
+
 	// time setup 
 	std::string time_units = "min"; 
 
@@ -185,8 +191,7 @@ int main( int argc, char* argv[] )
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
 	
-	// main loop 
-	
+	// main loop 	
 	try 
 	{		
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
@@ -205,6 +210,7 @@ int main( int argc, char* argv[] )
 					sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index ); 
 					
 					save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time ); 
+					MaBoSSIntracellular::save( filename, *PhysiCell::all_cells );
 				}
 				
 				PhysiCell_globals.full_output_index++; 

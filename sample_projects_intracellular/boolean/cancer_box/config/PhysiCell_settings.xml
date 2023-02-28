@@ -55,7 +55,7 @@
           <diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
           <decay_rate units="1/min">0.1</decay_rate>
         </physical_parameter_set>
-        <initial_condition units="mmHg">0</initial_condition>
+        <initial_condition units="mmHg">38.06</initial_condition>
         <Dirichlet_boundary_condition units="mmHg" enabled="true">0</Dirichlet_boundary_condition>
         </variable>
 
@@ -150,6 +150,12 @@
 			<custom_data>
 				<nucleus_deform type="double" units="">0</nucleus_deform>
 				<!-- <ecm_contact type="double" units="">0</ecm_contact> -->
+                <apoptosis_rate type="double" units="1/min" description="Apoptotic rate value when Apoptosis node becomes active">0.0055</apoptosis_rate>
+				<death_commitment_decay type="double" units="1/min" description="Factor at wich death rates decay when Boolean deadout deactivate">1e-7</death_commitment_decay>
+				<Hypoxia_node units="dimensionless">0</Hypoxia_node>
+				<Proliferation_node units="dimensionless">0</Proliferation_node>
+				<cell_pressure units="dimensionless">0</cell_pressure>
+
 			</custom_data>
 		</cell_definition>
 
@@ -194,17 +200,27 @@
 	</initial_conditions>	
 	
 	<user_parameters>
+		<!-- General parameters: -->
+		<random_seed type="int" units="dimensionless" description="">0</random_seed>
 		<read_init type="bool">true</read_init>
+
+		<!-- Oxygen parameters: -->
 		<blood_source_file type="string" units="">./config/endo_box.tsv</blood_source_file>
 		<o2_conc1 type="double" units="" description="O2 appearing in the blood vessels"> 200 </o2_conc1> <!-- 38.06 -->
 		<time_remove_o2 type="double" units="" description="Time to remove O2"> 3000 </time_remove_o2>
 		<o2_conc2 type="double" units="" description="O2 appearing in the blood vessels"> 0.0 </o2_conc2> <!-- 38.06 -->
+
+		<!-- ECM parameters: -->
 		<ecm_density_file type="string" units="">./config/ecm_box.tsv</ecm_density_file>
 		<ecm_value type="double" units="" description="density of the ECM substrate, topped at 1"> 1 </ecm_value>
-		<substrate_to_monitor type="string" units="">ecm</substrate_to_monitor> 
-		<random_seed type="int" units="dimensionless" description="">0</random_seed>
-		<number_of_cells type="int" units="none" description="">0</number_of_cells>
 		<cell_ecm_repulsion type="double" units="" description="change the value of ECM repulsion"> 15 </cell_ecm_repulsion>
-    </user_parameters>
-	
+		<substrate_to_monitor type="string" units="">ecm</substrate_to_monitor> 
+
+		<!-- Pressure parameters -->
+		<hill_coeff_pressure type="double" units="1/min">15.0</hill_coeff_pressure>
+		<pressure_half type="double" units="1/min">1.0</pressure_half> <!-- 0.0001 -->
+
+		<!--  Not used: -->
+		<number_of_cells type="int" units="none" description="">0</number_of_cells>
+</user_parameters>
 </PhysiCell_settings>

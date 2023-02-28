@@ -10,7 +10,6 @@
  * 	Source: https://github.com/pc4covid19/COVID19/blob/master/PhysiCell/custom_modules/submodel_data_structures.cpp
 */
 
-
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
 

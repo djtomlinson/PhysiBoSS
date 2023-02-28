@@ -1,13 +1,17 @@
 /*
  * custom.cpp
- *
- *  Created on: 15 feb. 2023
- *      Author: Arnau Montagud
+  *	\main cancer_box custom
+ *	\brief Custom module file for cancer_box example
+ * 
+ *	\details Modules needed for the prostate example. 
+ *	\date 15 feb. 2023
+ *	\author Arnau Montagud, BSC
  *  Description: 
 */
 
 #include "./custom.h"
 
+// declare cell definitions here
 void create_cell_types( void )
 {
 	// set the random seed 
@@ -28,8 +32,10 @@ void create_cell_types( void )
 	cell_defaults.functions.update_velocity = custom_update_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
-	cell_defaults.functions.update_phenotype =  update_cell_and_death_parameters_O2_based; 
+	// cell_defaults.functions.update_phenotype =  update_cell_and_death_parameters_O2_based; 
 	// cell_defaults.functions.update_phenotype = NULL;
+	cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_signaling;
+
 	cell_defaults.functions.custom_cell_rule = NULL; 
 	cell_defaults.functions.contact_function = NULL; 
 	
@@ -264,7 +270,6 @@ std::vector<std::string> regular_colors( Cell* pCell )
 		 output[2] = "green";  
 	}
 	
-
 	return output; 
 }
 
@@ -296,7 +301,6 @@ void set_substrate_density( void )
 	}
 
 	return;
-
 }
 
 // void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
@@ -423,6 +427,7 @@ void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
 	return; 
 }
 
+/*
 double add_ecm_interaction_amadrid ( Cell* pC, int index_ecm, int index_voxel )
 {
 	// Check if there is ECM material in given voxel
@@ -548,14 +553,10 @@ void custom_update_velocity_amadrid ( Cell* pCell, Phenotype& phenotype, double 
 		
 		return;
 	}
-/*
-	if (pCell->custom_data["freezed"] > 2){
-		return ;
-	}
-*/
 	
 	return; 
 }
+*/
 
 void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*), std::string sub )
 {
@@ -852,12 +853,122 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 }
 
 
-double pressure_effect_growth_rate(double pressure, double hill_coeff, double pressure_half){
+void update_cell_gowth_parameters_pressure_based( Cell* pCell, Phenotype& phenotype, double dt ) 
+{
+	// supported cycle models:
+		// advanced_Ki67_cycle_model= 0;
+		// basic_Ki67_cycle_model=1
+		// live_cells_cycle_model = 5; 
+	
+	if( phenotype.death.dead == true )
+	{ return; }
+	
+	// set up shortcuts to find the Q and K(1) phases (assuming Ki67 basic or advanced model)
+	static bool indices_initiated = false; 
+	static int start_phase_index; // Q_phase_index; 
+	static int end_phase_index; // K_phase_index;
+	static int necrosis_index; 
+	
+	static int oxygen_substrate_index = pCell->get_microenvironment()->find_density_index( "oxygen" ); 
+	
+	if( indices_initiated == false )
+	{
+		// Ki67 models
+		
+		if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || 
+			phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+		{
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_negative );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+			
+			if( phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+			{
+				end_phase_index = 
+					phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_positive );
+				indices_initiated = true; 
+			}
+			if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model )
+			{
+				end_phase_index = 
+					phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_positive_premitotic );
+				indices_initiated = true; 
+			}
+		}
+		
+		// live model 
+			
+		if( phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
+		{
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
+			indices_initiated = true; 
+		}
+		
+		// cytometry models 
+		
+		if( phenotype.cycle.model().code == PhysiCell_constants::flow_cytometry_cycle_model || 
+			phenotype.cycle.model().code == PhysiCell_constants::flow_cytometry_separated_cycle_model )
+		{
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::G0G1_phase );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::S_phase );
+			indices_initiated = true; 
+		}	
 
-    // Suggestion: Employ the Hill_effect function from PhysiCell instead of this one, just to align with the other mapping functions
+		if( phenotype.cycle.model().code == PhysiCell_constants::cycling_quiescent_model )
+		{
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::quiescent );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::cycling );
+			indices_initiated = true; 
+		}
+		
+	}
+	
+	// don't continue if we never "figured out" the current cycle model. 
+	if( indices_initiated == false )
+	{
+		return; 
+	}
 
-    // double pressure_exponential_function = std::pow(6e-03, pressure);
-    double pressure_exponential_function =  std::pow(pressure, hill_coeff) / (pressure_half + std::pow(pressure, hill_coeff));
-    // if (pressure_exponential_function > 1) pressure_exponential_function = 1.0;
-    return pressure_exponential_function;
+	// this multiplier is for linear interpolation of the oxygen value 
+	double multiplier = 1.0;
+	
+	// now, update the appropriate cycle transition rate 
+
+	// Check relative pressure to either number of neighbor cells or set max logistic function to number of neighbor cells
+	// pressure threshold set to 1, above this value there is no growth
+
+	double p = pCell->state.simple_pressure; 
+    double hill_coeff_pressure = parameters.doubles("hill_coeff_pressure");
+    double pressure_half = parameters.doubles("pressure_half");
+    double scaling = pressure_effect_growth_rate(p, hill_coeff_pressure, pressure_half );
+	// std::cout << "scaling is: " << scaling << std::endl;
+
+	double rate = phenotype.cycle.data.transition_rate(0, 0);
+	rate *= (1 - scaling);
+	if (rate < 0)
+		rate = 0;
+	
+	phenotype.cycle.data.transition_rate(start_phase_index, end_phase_index) = rate;
 }
+
+// custom cell phenotype function to run PhysiBoSS when is needed
+void tumor_cell_phenotype_with_signaling(Cell *pCell, Phenotype &phenotype, double dt)
+{
+	// std::cout << "Choosing phenotype with signalling " << std::endl;
+
+	if (phenotype.death.dead == true)
+	{
+		pCell->functions.update_phenotype = NULL;
+		return;
+	}
+	
+	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
+	// drug_transport_model_main(dt);
+	update_phenotype_with_signaling(pCell, phenotype, dt);
+	// ags_bm_interface_main(pCell, phenotype, dt);
+	update_cell_gowth_parameters_pressure_based(pCell, phenotype, dt);
+}
+
