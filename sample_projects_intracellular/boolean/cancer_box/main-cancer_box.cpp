@@ -112,9 +112,9 @@ int main( int argc, char* argv[] )
 	/* Microenvironment setup */ 
 	
 	setup_microenvironment(); // modify this in the custom code 
+	double time_remove_o2 = parameters.doubles("time_remove_o2");
+	bool done = false;
 
-
-	
 	/* PhysiCell setup */ 
 
 	set_substrate_density();
@@ -149,7 +149,7 @@ int main( int argc, char* argv[] )
 	// save a quick SVG cross section through z = 0, after setting its 
 	// length bar to 200 microns 
 
-	PhysiCell_SVG_options.length_bar = 200; 
+	PhysiCell_SVG_options.length_bar = 10; 
 
 	// for simplicity, set a pathology coloring function 
 	
@@ -164,7 +164,9 @@ int main( int argc, char* argv[] )
 	std::string substrate = PhysiCell::parameters.strings("substrate_to_monitor");	
 
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot_ecm( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
+	// SVG_plot_ecm( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
+	SVG_plot ( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function );
+
 	
 	
 	display_citations(); 
@@ -215,9 +217,9 @@ int main( int argc, char* argv[] )
 				if( PhysiCell_settings.enable_SVG_saves == true )
 				{	
 					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index ); 
-					SVG_plot_ecm( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
-	
-					
+					// SVG_plot_ecm( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
+					SVG_plot ( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function );
+
 					PhysiCell_globals.SVG_output_index++; 
 					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
 				}
@@ -225,7 +227,13 @@ int main( int argc, char* argv[] )
 
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
-			
+
+			if( fabs( PhysiCell_globals.current_time >= time_remove_o2 ))
+			{
+				change_dirichlet_nodes();
+				done = true;
+			}
+
 			// run PhysiCell 
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
 			
@@ -253,9 +261,9 @@ int main( int argc, char* argv[] )
 	save_PhysiCell_to_MultiCellDS_xml_pugi( filename , microenvironment , PhysiCell_globals.current_time ); 
 	
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot_ecm( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
-	
-	
+	// SVG_plot_ecm( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function, substrate );
+	SVG_plot ( filename , microenvironment, 10.0 , PhysiCell_globals.current_time, cell_coloring_function );
+
 	// timer 
 	
 	std::cout << std::endl << "Total simulation runtime: " << std::endl; 

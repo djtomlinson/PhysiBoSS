@@ -16,9 +16,9 @@ ecm2 <- ecm %>% filter(V1<69, 60<V1, V2<69, 60<V2) #està buit
 blood <- read.table("../config/setup_endo_norm.csv", header = F, sep = ",", stringsAsFactors = FALSE)
 blood2 <- blood %>% filter(V1<69, 60<V1, V2<69, 60<V2) %>% mutate(V1 = V1-60, V2 = V2-60) %>% slice(rep(1:n(), each = 8)) %>% mutate(V3 = rep(seq(1:8), 2))
 
-ecm3 <- ecm %>% filter((V1==0 & V2<9) | (V1==9 & V2<9))
-a1<-c(0,0,0)
-ecm3<-data.frame() %>% rbind(a1) %>% slice(rep(1:n(), each = 9)) %>% rename(V1 = X0, V2 = X0.1, V3 = X0.2)
+# ecm3 <- ecm %>% filter((V1==0 & V2<9) | (V1==9 & V2<9))
+# a1<-c(0,0,0)
+# ecm3<-data.frame() %>% rbind(a1) %>% slice(rep(1:n(), each = 9)) %>% rename(V1 = X0, V2 = X0.1, V3 = X0.2)
 
 N   <- 3
 vec <- seq(1:10)-1
@@ -26,7 +26,8 @@ lst <- lapply(numeric(N), function(x) vec)
 ecm2 <- expand.grid(lst) %>% as.matrix() %>% as.data.frame() %>% rename(V1=Var1, V2=Var2,V3=Var3)
 ecm3 <- rbind(ecm2 %>% filter(V1==0 | V1==9),
               ecm2 %>% filter(V2==0 | V2==9),
-              ecm2 %>% filter(V3==0 | V3==9)
+              ecm2 %>% filter(V3==0 | V3==9),
+              blood2
               )
 ecm4a <- ecm3 %>% distinct(V1, V2, V3, .keep_all = TRUE)
 ecm4 <- ecm3[!duplicated(ecm3[,1:3]),]

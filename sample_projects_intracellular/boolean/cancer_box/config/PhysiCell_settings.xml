@@ -13,7 +13,7 @@
 	</domain>
 	
 	<overall>
-		<max_time units="min">240</max_time> 
+		<max_time units="min">5760</max_time>  <!-- 240, 2880, 5760 -->
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 	
@@ -23,7 +23,7 @@
 	</overall>
 	
 	<parallel>
-		<omp_num_threads>1</omp_num_threads>
+		<omp_num_threads>4</omp_num_threads>
 	</parallel> 
 	
 	<save>
@@ -55,43 +55,27 @@
           <diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
           <decay_rate units="1/min">0.1</decay_rate>
         </physical_parameter_set>
-        <initial_condition units="mmHg">30</initial_condition>
-        <Dirichlet_boundary_condition units="mmHg" enabled="true">30</Dirichlet_boundary_condition>
-        <Dirichlet_options>
-          <boundary_value ID="xmin" enabled="true">30</boundary_value>
-          <boundary_value ID="xmax" enabled="true">30</boundary_value>
-          <boundary_value ID="ymin" enabled="true">30</boundary_value>
-          <boundary_value ID="ymax" enabled="true">30</boundary_value>
-          <boundary_value ID="zmin" enabled="true">30</boundary_value>
-          <boundary_value ID="zmax" enabled="true">30</boundary_value>
-        </Dirichlet_options>
+        <initial_condition units="mmHg">0</initial_condition>
+        <Dirichlet_boundary_condition units="mmHg" enabled="true">0</Dirichlet_boundary_condition>
         </variable>
 
     <variable name="ecm" units="dimensionless" ID="1">
       <physical_parameter_set>
-        
-        <diffusion_coefficient units="micron^2/min">0.0</diffusion_coefficient>
-        <decay_rate units="1/min">0.000000000001</decay_rate> 
-      </physical_parameter_set>
-      <initial_condition units="mmHg">20</initial_condition>
-
-      <Dirichlet_boundary_condition units="mmHg" enabled="false">0</Dirichlet_boundary_condition>
+			<diffusion_coefficient units="micron^2/min">0.0</diffusion_coefficient>
+			<decay_rate units="1/min">0.0</decay_rate> 
+    	</physical_parameter_set>
+    	<initial_condition units="mmHg">0</initial_condition>
+		<Dirichlet_boundary_condition units="mmHg" enabled="false">0</Dirichlet_boundary_condition>
     </variable>
-
-
-
-    
 
       <options>
 			<calculate_gradients>true</calculate_gradients>
 			<track_internalized_substrates_in_each_agent>true</track_internalized_substrates_in_each_agent>
-			 
 			<initial_condition type="matlab" enabled="true">
-				<filename>./config/initial.mat</filename>
+			<filename>./config/initial.mat</filename>
 			</initial_condition>
-			 
 			<dirichlet_nodes type="matlab" enabled="true">
-				<filename>./config/dirichlet.mat</filename>
+			<filename>./config/dirichlet.mat</filename>
 			</dirichlet_nodes>
 		</options>
 	</microenvironment_setup>	
@@ -212,12 +196,15 @@
 	<user_parameters>
 		<read_init type="bool">true</read_init>
 		<blood_source_file type="string" units="">./config/endo_box.tsv</blood_source_file>
-		<o2_conc type="double" units="" description="O2 appearing in the bloos vessels"> 38.06 </o2_conc>
+		<o2_conc1 type="double" units="" description="O2 appearing in the blood vessels"> 200 </o2_conc1> <!-- 38.06 -->
+		<time_remove_o2 type="double" units="" description="Time to remove O2"> 3000 </time_remove_o2>
+		<o2_conc2 type="double" units="" description="O2 appearing in the blood vessels"> 0.0 </o2_conc2> <!-- 38.06 -->
 		<ecm_density_file type="string" units="">./config/ecm_box.tsv</ecm_density_file>
+		<ecm_value type="double" units="" description="density of the ECM substrate, topped at 1"> 1 </ecm_value>
 		<substrate_to_monitor type="string" units="">ecm</substrate_to_monitor> 
 		<random_seed type="int" units="dimensionless" description="">0</random_seed>
 		<number_of_cells type="int" units="none" description="">0</number_of_cells>
-		<cell_ecm_repulsion type="double" units="" description="change the value of ECM repulsion"> 0.1 </cell_ecm_repulsion>
+		<cell_ecm_repulsion type="double" units="" description="change the value of ECM repulsion"> 15 </cell_ecm_repulsion>
     </user_parameters>
 	
 </PhysiCell_settings>

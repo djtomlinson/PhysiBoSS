@@ -1,68 +1,9 @@
 /*
-###############################################################################
-# If you use PhysiCell in your project, please cite PhysiCell and the version #
-# number, such as below:                                                      #
-#                                                                             #
-# We implemented and solved the model using PhysiCell (Version x.y.z) [1].    #
-#                                                                             #
-# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
-#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
-#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
-#     DOI: 10.1371/journal.pcbi.1005991                                       #
-#                                                                             #
-# See VERSION.txt or call get_PhysiCell_version() to get the current version  #
-#     x.y.z. Call display_citations() to get detailed information on all cite-#
-#     able software used in your PhysiCell application.                       #
-#                                                                             #
-# Because PhysiCell extensively uses BioFVM, we suggest you also cite BioFVM  #
-#     as below:                                                               #
-#                                                                             #
-# We implemented and solved the model using PhysiCell (Version x.y.z) [1],    #
-# with BioFVM [2] to solve the transport equations.                           #
-#                                                                             #
-# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
-#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
-#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
-#     DOI: 10.1371/journal.pcbi.1005991                                       #
-#                                                                             #
-# [2] A Ghaffarizadeh, SH Friedman, and P Macklin, BioFVM: an efficient para- #
-#     llelized diffusive transport solver for 3-D biological simulations,     #
-#     Bioinformatics 32(8): 1256-8, 2016. DOI: 10.1093/bioinformatics/btv730  #
-#                                                                             #
-###############################################################################
-#                                                                             #
-# BSD 3-Clause License (see https://opensource.org/licenses/BSD-3-Clause)     #
-#                                                                             #
-# Copyright (c) 2015-2021, Paul Macklin and the PhysiCell Project             #
-# All rights reserved.                                                        #
-#                                                                             #
-# Redistribution and use in source and binary forms, with or without          #
-# modification, are permitted provided that the following conditions are met: #
-#                                                                             #
-# 1. Redistributions of source code must retain the above copyright notice,   #
-# this list of conditions and the following disclaimer.                       #
-#                                                                             #
-# 2. Redistributions in binary form must reproduce the above copyright        #
-# notice, this list of conditions and the following disclaimer in the         #
-# documentation and/or other materials provided with the distribution.        #
-#                                                                             #
-# 3. Neither the name of the copyright holder nor the names of its            #
-# contributors may be used to endorse or promote products derived from this   #
-# software without specific prior written permission.                         #
-#                                                                             #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" #
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE   #
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE  #
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE   #
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR         #
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF        #
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS    #
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN     #
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)     #
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE  #
-# POSSIBILITY OF SUCH DAMAGE.                                                 #
-#                                                                             #
-###############################################################################
+ * custom.cpp
+ *
+ *  Created on: 15 feb. 2023
+ *      Author: Arnau Montagud
+ *  Description: 
 */
 
 #include "./custom.h"
@@ -87,7 +28,8 @@ void create_cell_types( void )
 	cell_defaults.functions.update_velocity = custom_update_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
-	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
+	cell_defaults.functions.update_phenotype =  update_cell_and_death_parameters_O2_based; 
+	// cell_defaults.functions.update_phenotype = NULL;
 	cell_defaults.functions.custom_cell_rule = NULL; 
 	cell_defaults.functions.contact_function = NULL; 
 	
@@ -106,9 +48,9 @@ void create_cell_types( void )
 	   This is a good place to set custom functions. 
 	*/ 
 	
-	cell_defaults.functions.update_phenotype = phenotype_function; 
-	cell_defaults.functions.custom_cell_rule = custom_function; 
-	cell_defaults.functions.contact_function = contact_function; 
+	// cell_defaults.functions.update_phenotype = phenotype_function; 
+	// cell_defaults.functions.custom_cell_rule = custom_function; 
+	// cell_defaults.functions.contact_function = contact_function; 
 	
 	/*
 	   This builds the map of cell definitions and summarizes the setup. 
@@ -122,37 +64,18 @@ void create_cell_types( void )
 
 void setup_microenvironment( void )
 {
-			
+
 	initialize_microenvironment();
 	double o2_conc;
 	if ( parameters.bools("read_init") )
 	{
-		o2_conc = parameters.doubles("o2_conc");
+		o2_conc = parameters.doubles("o2_conc1");
 	}
 	else
 	{
-		double o2_conc = 38.06;
+		double o2_conc = 30; //deuria de ser 38.06
 	}
 	std::vector<double> dirichlet_o2( 1 , o2_conc );
-	// std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_endo_norm.csv", std::ios::in );
-	// if( !file )
-	// { 
-	// 	std::cout << "Error: " << "set_upf_endo_norm.csv" << " not found during cell loading. Quitting." << std::endl; 
-	// 	exit(-1);
-	// }
-	// std::string line;
-	// while (std::getline(positions, line))
-	// {
-	// 	std::vector<double> data;
-	// 	csv_to_vector( line.c_str() , data ); 
-	// 	if( data.size() != 3 )
-	// 	{
-	// 		std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
-	// 		exit(-1);
-	// 	};
-	// 	/*std::vector<double> position = { data[0] , data[1] , data[2] }; */	
-	// 	microenvironment.add_dirichlet_node( microenvironment.voxel_index(data[0],data[1],data[2]) , dirichlet_o2 );
-	// }
 
 	std::vector<std::vector<double>> positions;
 	if ( parameters.bools("read_init") )
@@ -169,10 +92,49 @@ void setup_microenvironment( void )
 		microenvironment.add_dirichlet_node( microenvironment.voxel_index(x,y,z) , dirichlet_o2 );
 		// microenvironment.add_dirichlet_node( microenvironment.voxel_index(positions[0],positions[1],positions[2]) , dirichlet_o2 );
 	}
-	// file.close(); 	
 	microenvironment.set_substrate_dirichlet_activation( 0, true ); 
 
-	/* here we try to set up the ecm */
+	return; 
+}	
+
+//opció llevar
+// void remove_density(int density_index)
+// {
+// 	for (int n = 0; n < microenvironment.number_of_voxels(); n++)
+// 		microenvironment.density_vector(n)[density_index] = 0;
+// }
+
+//opció no ficar
+void change_dirichlet_nodes ( void )
+{
+
+	double o2_conc;
+	if ( parameters.bools("read_init") )
+	{
+		o2_conc = parameters.doubles("o2_conc2");
+	}
+	else
+	{
+		double o2_conc = 30; //deuria de ser 38.06
+	}
+	std::vector<double> dirichlet_o2( 1 , o2_conc );
+
+	std::vector<std::vector<double>> positions;
+	if ( parameters.bools("read_init") )
+	{
+		std::string csv_fname = parameters.strings("blood_source_file");
+		positions = read_cells_positions(csv_fname, '\t', true);
+	}
+
+	for (int i = 0; i < positions.size(); i++)
+	{
+		int x = (positions[i][0]);
+		int y = ( positions[i][1]);
+		int z = ( positions[i][2]);
+		microenvironment.add_dirichlet_node( microenvironment.voxel_index(x,y,z) , dirichlet_o2 );
+		// microenvironment.add_dirichlet_node( microenvironment.voxel_index(positions[0],positions[1],positions[2]) , dirichlet_o2 );
+	}
+	microenvironment.set_substrate_dirichlet_activation( 0, true ); 
 
 	return; 
 }	
@@ -265,12 +227,8 @@ void setup_tissue( void )
 
 	load_cells_from_pugixml();
 
-
-
-	
 	return; 
 }
-
 
 std::vector<std::string> regular_colors( Cell* pCell )
 {
@@ -313,15 +271,15 @@ std::vector<std::string> regular_colors( Cell* pCell )
 void set_substrate_density( void )
 {
 
-	// double minim = 20;
-	double maxim = 30;
-
-	// std::ifstream file( "/home/alejandro/Escritorio/MasterBioinformatica/TFM/TFM2022AlejandroMadrid/pruebas/Stutilityvsscanpy/setup_physi/setup_ecm.csv", std::ios::in );
-	// if( !file )
-	// { 
-	// 	std::cout << "Error: " << "set_ecm.csv" << " not found during cell loading. Quitting." << std::endl; 
-	// 	exit(-1);
-	// }
+	double ecm_value;
+	if ( parameters.bools("read_init") )
+	{
+		ecm_value = parameters.doubles("ecm_value");
+	}
+	else
+	{
+		double ecm_value = 10;
+	}
 
 	std::vector<std::vector<double>> positions;
 	// if ( parameters.bools("read_init") )	{
@@ -334,54 +292,138 @@ void set_substrate_density( void )
 		int x = (positions[i][0]);
 		int y = ( positions[i][1]);
 		int z = ( positions[i][2]);
-		microenvironment.density_vector(microenvironment.voxel_index(x,y,z))[microenvironment.find_density_index("ecm")] = maxim;
+		microenvironment.density_vector(microenvironment.voxel_index(x,y,z))[microenvironment.find_density_index("ecm")] = ecm_value;
 	}
 
-	// std::string line;
-	// while (std::getline(positions, line))
-	// {
-	// 	std::vector<double> data2;
-	// 	csv_to_vector( line.c_str() , data2 ); 		
-	// 	if( data2.size() != 3 )
-	// 	{
-	// 		std::cout << "Error! Importing cells from a CSV file expects each row to be x,y,z." << std::endl;
-	// 		exit(-1);
-	// 	};
-		/*std::vector<double> position = { data[0] , data[1] , data[2] }; */
-		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
-		// microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] = maxim;
-		//std::cout << microenvironment.density_vector(microenvironment.voxel_index(data2[0],data2[1],data2[2]))[microenvironment.find_density_index("ecm")] << "kweeeeeeeeeeee" << std::endl;
-		//std::cout << microenvironment.find_density_index("ecm") << std::endl;
-	// }
-
-	// file.close(); 	
 	return;
-	// std::cout << microenvironment.number_of_voxels() << "\n";
-	// #pragma omp parallel for
-	// for (int n = 0; n < microenvironment.number_of_voxels(); n++)
-	// {
-	// 	auto current_voxel = microenvironment.voxels(n);
-	// 	double t_norm = norm(current_voxel.center);
 
-	// 	if ((radius - t_norm) <= 0)
-	// 		microenvironment.density_vector(n)[density_index] = current_value(min, max, uniform_random());
-	// }
 }
 
+// void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
+// { return; }
 
-void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
-{ return; }
+// void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
+// { return; } 
 
-void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
-{ return; } 
-
-void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt )
-{ return; } 
+// void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt )
+// { return; } 
 
 double current_value( double min, double max, double percent )
 { return (min + (max-min) * percent); };
 
-double add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
+// Calculate repulsion/adhesion between agent and ecm according to its local density, from Ruscone
+void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
+{
+	// Check if there is ECM material in given voxel
+	//double dens2 = get_microenvironment()->density_vector(index_voxel)[index_ecm];
+	double dens = pC->get_microenvironment()->nearest_density_vector(index_voxel)[index_ecm];
+	double ecmrad = sqrt(3.0) * pC->get_microenvironment()->mesh.dx / 2.0;
+	// if voxel is "full", density is 1
+	dens = std::min( dens, 1.0 ); 
+	if ( dens > EPSILON )
+	{
+		// Distance between agent center and ECM voxel center
+		pC->displacement = pC->position - pC->get_container()->underlying_mesh.voxels[index_voxel].center;
+		double distance = norm(pC->displacement);
+		// Make sure that the distance is not zero
+		distance = std::max(distance, EPSILON);
+		
+		double dd = pC->phenotype.geometry.radius + ecmrad;  
+		double dnuc = pC->phenotype.geometry.nuclear_radius + ecmrad;  
+
+		double tmp_r = 0;
+		// Cell overlap with ECM node, add a repulsion term
+		if ( distance < dd )
+		{
+			// repulsion stronger if nucleii overlap, see Macklin et al. 2012, 2.3.1
+			if ( distance < dnuc )
+			{
+				double M = 1.0;
+				double c = 1.0 - dnuc/dd;
+				c *= c;
+				c -= M;
+				tmp_r = c*distance/dnuc + M;
+				pC->custom_data["nucleus_deform"] += (dnuc-distance);
+			}
+			else
+			{
+				tmp_r = ( 1 - distance / dd );
+				tmp_r *= tmp_r;
+			}
+			tmp_r *= dens * PhysiCell::parameters.doubles("cell_ecm_repulsion");
+		}
+
+		// Cell adherence to ECM through integrins
+		// double max_interactive_distance = (PhysiCell::parameters.doubles("max_interaction_factor")*pC->phenotype.geometry.radius) + ecmrad;
+		// if ( distance < max_interactive_distance ) 
+		// {	
+		// 	double temp_a = 1 - distance/max_interactive_distance; 
+		// 	temp_a *= temp_a; 
+		// 	/* \todo change dens with a maximal density ratio ? */
+		// 	pC->custom_data["ecm_contact"] += dens * (max_interactive_distance-distance);
+		// 	// temp_a *= dens * ( static_cast<Cell*>(this) )->integrinStrength();
+		// 	temp_a *= dens * integrinStrength(pC);
+		// 	tmp_r -= temp_a;
+		// }
+		
+		/////////////////////////////////////////////////////////////////
+		if(tmp_r==0)
+			return;
+		tmp_r/=distance;
+
+		pC->velocity += tmp_r * pC->displacement;
+	}
+}
+
+//from Ruscone
+void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
+{
+	// pCell->custom_data["ecm_contact"] = 0;
+	// pCell->custom_data["nucleus_deform"] = 0;
+	// pCell->custom_data["TGFbeta_contact"] = 0;
+	// pCell->custom_data["cell_contact"] = 0;
+	
+	if( pCell->functions.add_cell_basement_membrane_interactions )
+	{
+		pCell->functions.add_cell_basement_membrane_interactions(pCell, phenotype,dt);
+	}
+	
+	pCell->state.simple_pressure = 0.0;  //XXX per que?
+	
+	//First check the neighbors in my current voxel
+	for( auto neighbor : pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()] )
+	{
+		pCell->add_potentials( neighbor );
+	}
+
+	int ecm_index = BioFVM::microenvironment.find_density_index("ecm");
+	if ( ecm_index >= 0 )
+		add_ecm_interaction( pCell, ecm_index, pCell->get_current_mechanics_voxel_index() );
+		// add_TGFbeta_interaction(pCell, pCell->get_current_mechanics_voxel_index());
+
+	for (auto neighbor_voxel_index : pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()])
+	{
+		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[neighbor_voxel_index].center, neighbor_voxel_index))
+			continue;
+
+		if ( ecm_index >= 0 )
+			add_ecm_interaction( pCell, ecm_index, neighbor_voxel_index );
+			// add_TGFbeta_interaction(pCell, pCell->get_current_mechanics_voxel_index());
+		for( auto other_neighbor : pCell->get_container()->agent_grid[neighbor_voxel_index] )
+		{
+			pCell->add_potentials(other_neighbor);
+		}
+	}
+
+	pCell->update_motility_vector(dt);
+	// std::cout << phenotype.motility.motility_vector << "  ";
+	//std::cout << pCell->state.simple_pressure << " \n ";
+	pCell->velocity += phenotype.motility.motility_vector;
+	
+	return; 
+}
+
+double add_ecm_interaction_amadrid ( Cell* pC, int index_ecm, int index_voxel )
 {
 	// Check if there is ECM material in given voxel
 	// double dens2 = pC->get_microenvironment()->density_vector(index_voxel)[index_ecm];
@@ -423,27 +465,6 @@ double add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 			tmp_r *= dens * PhysiCell::parameters.doubles("cell_ecm_repulsion");
 		}
 
-		// // Cell adherence to ECM through integrins
-		// double max_interactive_distance = (PhysiCell::parameters.doubles("max_interaction_factor")*pC->phenotype.geometry.radius) + ecmrad;
-		// if ( distance < max_interactive_distance ) 
-		// {	
-		// 	double temp_a = 1 - distance/max_interactive_distance; 
-		// 	temp_a *= temp_a; 
-		// 	/* \todo change dens with a maximal density ratio ? */
-		// 	pC->custom_data["ecm_contact"] += dens * (max_interactive_distance-distance);
-		// 	// temp_a *= dens * ( static_cast<Cell*>(this) )->integrinStrength();
-
-		// 	double temp_integrins = get_integrin_strength( pC->custom_data["integrin"] );
-
-		// 	temp_a *= dens * temp_integrins;
-			
-		// 	tmp_r -= temp_a;
-		// }
-		
-		/////////////////////////////////////////////////////////////////
-		// if (tmp_r==0) 
-		// 	return;
-
 		tmp_r/=distance;
 
 	
@@ -462,7 +483,7 @@ double add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 	}
 }
 
-void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
+void custom_update_velocity_amadrid ( Cell* pCell, Phenotype& phenotype, double dt)
 {
 	// pCell->custom_data["ecm_contact"] = 0;
 	pCell->custom_data["nucleus_deform"] = 0;
@@ -472,7 +493,7 @@ void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
 		pCell->functions.add_cell_basement_membrane_interactions(pCell, phenotype,dt);
 	}
 	
-	pCell->state.simple_pressure = 0.0; 
+	pCell->state.simple_pressure = 0.0;  //XXX per que?
 	
 	//First check the neighbors in my current voxel
 	for( auto neighbor : pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()] )
@@ -480,7 +501,7 @@ void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
 		pCell->add_potentials( neighbor );
 	}
 
-	pCell->state.simple_pressure = 0.0; 
+	pCell->state.simple_pressure = 0.0; //XXX per que?
 	pCell->state.neighbors.clear(); // new 1.8.0
 
 	std::vector<Cell*>::iterator neighbor;
@@ -509,7 +530,7 @@ void custom_update_velocity( Cell* pCell, Phenotype& phenotype, double dt)
 
 	int ecm_index = BioFVM::microenvironment.find_density_index("ecm");
 	if ( ecm_index >= 0 ){
-		double tmp_r2 = add_ecm_interaction( pCell, ecm_index, pCell->get_current_mechanics_voxel_index() );
+		double tmp_r2 = add_ecm_interaction_amadrid( pCell, ecm_index, pCell->get_current_mechanics_voxel_index() );
 		double owo = 0;
 
 		if ( tmp_r2 != 0 ){
@@ -545,8 +566,8 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 	double Y_lower = M.mesh.bounding_box[1]; 
 	double Y_upper = M.mesh.bounding_box[4]; 
 
-	double plot_width = X_upper - X_lower; 
-	double plot_height = Y_upper - Y_lower; 
+	double plot_width = (X_upper - X_lower)*3; 
+	double plot_height = (Y_upper - Y_lower)*4; 
 
 	double font_size = 0.025 * plot_height; // PhysiCell_SVG_options.font_size; 
 	double top_margin = font_size*(.2+1+.2+.9+.5 ); 
@@ -692,50 +713,43 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 
  
  // color in the background ECM
-/* 
+/*
  if( ECM.TellRows() > 0 )
- {
-  // find the k corresponding to z_slice
-  
-  
-  
-  Vector position; 
-  *position(2) = z_slice; 
-  
+	{
+		// find the k corresponding to z_slice
 
-  // 25*pi* 5 microns^2 * length (in source) / voxelsize^3
-  
-  for( int j=0; j < ratio*ECM.TellCols() ; j++ )
-  {
-   // *position(1) = *Y_environment(j); 
-   *position(1) = *Y_environment(0) - dy_stroma/2.0 + j*voxel_size + half_voxel_size; 
-   
-   for( int i=0; i < ratio*ECM.TellRows() ; i++ )
-   {
-    // *position(0) = *X_environment(i); 
-    *position(0) = *X_environment(0) - dx_stroma/2.0 + i*voxel_size + half_voxel_size; 
-	
-    double E = evaluate_Matrix3( ECM, X_environment , Y_environment, Z_environment , position );	
-	double BV = normalizer * evaluate_Matrix3( OxygenSourceHD, X_environment , Y_environment, Z_environment , position );
-	if( isnan( BV ) )
-	{ BV = 0.0; }
+		Vector position; 
+		*position(2) = z_slice; 
 
-	vector<string> Colors;
-	Colors = hematoxylin_and_eosin_stroma_coloring( E , BV );
-	Write_SVG_rect( os , *position(0)-half_voxel_size-X_lower , *position(1)-half_voxel_size+top_margin-Y_lower, 
-	voxel_size , voxel_size , 1 , Colors[0], Colors[0] );
-   
-   }
-  }
- 
- }
+		// 25*pi* 5 microns^2 * length (in source) / voxelsize^3
+		
+		for( int j=0; j < ratio*ECM.TellCols() ; j++ )
+		{
+			// *position(1) = *Y_environment(j); 
+			*position(1) = *Y_environment(0) - dy_stroma/2.0 + j*voxel_size + half_voxel_size; 
+			
+			for( int i=0; i < ratio*ECM.TellRows() ; i++ )
+			{
+				// *position(0) = *X_environment(i); 
+				*position(0) = *X_environment(0) - dx_stroma/2.0 + i*voxel_size + half_voxel_size; 
+				
+				double E = evaluate_Matrix3( ECM, X_environment , Y_environment, Z_environment , position );	
+				double BV = normalizer * evaluate_Matrix3( OxygenSourceHD, X_environment , Y_environment, Z_environment , position );
+				if( isnan( BV ) )
+				{ BV = 0.0; }
+
+				std::vector<std::string> Colors;
+				Colors = hematoxylin_and_eosin_stroma_coloring( E , BV );
+				Write_SVG_rect( os , *position(0)-half_voxel_size-X_lower , *position(1)-half_voxel_size+top_margin-Y_lower, voxel_size , voxel_size , 1 , Colors[0], Colors[0] );
+			
+			}
+		}
+	}
 */
 	os << "  </g>" << std::endl; 
 
- 
 	// plot intersecting cells 
 	os << "  <g id=\"cells\">" << std::endl; 
-
 
 	// double lowest_pressure = 1.0;
 	// double max_pressure = 1.0;
@@ -744,7 +758,6 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 		Cell* pC = (*all_cells)[i]; // global_cell_list[i]; 
 
 		// double pressure = pC->custom_data["padhesion"];
-
 		// if (pressure < lowest_pressure)
 		// 	lowest_pressure = pressure;
 		// if (pressure > max_pressure)
@@ -812,11 +825,11 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 	szString = new char [1024];
 	sprintf( szString , "%u %s" , (int) round( temp ) , bar_units.c_str() );
  
-	// Write_SVG_rect( os , plot_width - bar_margin - bar_width  , plot_height + top_margin - bar_margin - bar_height , 
-	// 	bar_width , bar_height , 0.002 * plot_height , "rgb(255,255,255)", "rgb(0,0,0)" );
-	// Write_SVG_text( os, szString , plot_width - bar_margin - bar_width + 0.25*font_size , 
-	// 	plot_height + top_margin - bar_margin - bar_height - 0.25*font_size , 
-	// 	font_size , PhysiCell_SVG_options.font_color.c_str() , PhysiCell_SVG_options.font.c_str() ); 
+	Write_SVG_rect( os , plot_width - bar_margin - bar_width  , plot_height + top_margin - bar_margin - bar_height , 
+		bar_width , bar_height , 0.002 * plot_height , "rgb(255,255,255)", "rgb(0,0,0)" );
+	Write_SVG_text( os, szString , plot_width - bar_margin - bar_width + 0.25*font_size , 
+		plot_height + top_margin - bar_margin - bar_height - 0.25*font_size , 
+		font_size , PhysiCell_SVG_options.font_color.c_str() , PhysiCell_SVG_options.font.c_str() ); 
 	
 	delete [] szString; 
 
@@ -836,4 +849,15 @@ void SVG_plot_ecm( std::string filename , Microenvironment& M, double z_slice , 
 	os.close();
  
 	return; 
+}
+
+
+double pressure_effect_growth_rate(double pressure, double hill_coeff, double pressure_half){
+
+    // Suggestion: Employ the Hill_effect function from PhysiCell instead of this one, just to align with the other mapping functions
+
+    // double pressure_exponential_function = std::pow(6e-03, pressure);
+    double pressure_exponential_function =  std::pow(pressure, hill_coeff) / (pressure_half + std::pow(pressure, hill_coeff));
+    // if (pressure_exponential_function > 1) pressure_exponential_function = 1.0;
+    return pressure_exponential_function;
 }
