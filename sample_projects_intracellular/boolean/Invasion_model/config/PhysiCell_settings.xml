@@ -293,7 +293,9 @@
     	<motility_amplitude_max type="double" units="" description="change the max value of motility amplitude"> 0.8 </motility_amplitude_max>
     	<mode_motility type="int" units="" description="not used yet"> 1 </mode_motility>
 		<!-- substrates parameters -->
-		<config_radius type="double" units="" description="change the initial radius of the tumor">100</config_radius>
+		<tumor_radius type="double" units="" description="change the initial radius of the tumor">100</tumor_radius>
+		<ecm_radius type="double" units="" description="change the initial radius of the ECM">100</ecm_radius>
+		<shell_length type="double" units="" description="change the initial radius of the tumor shell">50</shell_length>
 		<tgfbeta_radius type="double" units="" description="change radius of the tgfbeta substrate">90</tgfbeta_radius>
 		<density_tgfbeta_max type="double" units="" description="change initial density of the tgfbeta substrate">0.4</density_tgfbeta_max>
 		<density_tgfbeta_min type="double" units="" description="change initial density of the tgfbeta substrate">0.4</density_tgfbeta_min>

@@ -176,7 +176,7 @@ void setup_tissue( void )
 	double cell_radius = cell_defaults.phenotype.geometry.radius; 
 	double cell_spacing = 0.95 * 2.0 * cell_radius; 
 	
-	double tumor_radius = parameters.doubles("config_radius");
+	double tumor_radius = parameters.doubles("tumor_radius");
 
 	std::vector<std::vector<double>> positions;
 
@@ -804,6 +804,7 @@ void set_substrate_density(int density_index, double max, double min, double rad
 {
 	std::cout << "SETTING SUBSTRATE \n";
 	// Inject given concentration on the extremities only
+	double shell_length = PhysiCell::parameters.doubles("shell_length");
 
 	std::cout << microenvironment.number_of_voxels() << "\n";
 	#pragma omp parallel for
@@ -811,8 +812,9 @@ void set_substrate_density(int density_index, double max, double min, double rad
 	{
 		auto current_voxel = microenvironment.voxels(n);
 		double t_norm = norm(current_voxel.center);
+		
 
-		if ((radius - t_norm) <= 0)
+		if ((radius - t_norm) <= 0 && (radius + shell_length - t_norm) >= 0)
 			microenvironment.density_vector(n)[density_index] = current_value(min, max, uniform_random());
 	}
 }
