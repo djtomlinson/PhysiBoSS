@@ -1,11 +1,11 @@
 <PhysiCell_settings version="devel-version">
 	<domain>
-		<x_min>-400</x_min>
-		<x_max>400</x_max>
-		<y_min>-400</y_min>
-		<y_max>400</y_max>
-		<z_min>-400</z_min>
-		<z_max>400</z_max>
+		<x_min>-600</x_min>
+		<x_max>600</x_max>
+		<y_min>-600</y_min>
+		<y_max>600</y_max>
+		<z_min>-600</z_min>
+		<z_max>600</z_max>
 		<dx>10</dx>
 		<dy>10</dy>
 		<dz>10</dz>
@@ -231,7 +231,7 @@
 		<simulate_SRC type="bool" units="" description="change initial configuration to simulate SRC">false</simulate_SRC>
 		<node_to_mutate type="string" units="" description="change the node to mutate for the experiments">ERK</node_to_mutate>
 		<src_activation_time type="double" units="min">12000000</src_activation_time> 
-		<src_stop_time type="double" units="min">2880</src_stop_time>
+		<src_stop_time type="double" units="min">28800000</src_stop_time>
 		<config_radius_light type="double" units="" description="change the initial radius of the light illumination">15</config_radius_light> 
 		 <!-- cell-substrates interaction paramaters --> 
 		<ecm_adhesion_min type="double" units="" description="used to set the min adhesion between cells and ECM"> 1 </ecm_adhesion_min>
@@ -249,8 +249,8 @@
 		<contact_cell_ECM_threshold type="double" units="" description="change the threshold needed to trigger ECM interaction"> 0.05 </contact_cell_ECM_threshold>
 		<contact_TGFB_threshold type="double" units="" description="change the threshold needed to trigger TGFbeta interaction"> 0.02 </contact_TGFB_threshold>
 		<contact_cell_cell_threshold type="double" units="" description="change the threshold needed to trigger Neighbours and Neigh2 node"> 0.3 </contact_cell_cell_threshold>
-		<cell_junctions_attach_threshold type="double" units="" description="change the threshold needed to attach cells in cluster with cell junction">1.1</cell_junctions_attach_threshold>
-		<cell_junctions_detach_threshold type="double" units="" description="change the threshold needed to detach cells in cluster with cell junction">0.3</cell_junctions_detach_threshold>
+		<cell_junctions_attach_threshold type="double" units="" description="change the threshold needed to attach cells in cluster with cell junction">0.05</cell_junctions_attach_threshold>
+		<cell_junctions_detach_threshold type="double" units="" description="change the threshold needed to detach cells in cluster with cell junction">0.03</cell_junctions_detach_threshold>
 		<!-- motility parameters -->
 		<migration_bias type="double" units="" description="change value of migration bias for cells with migration node active">0.85</migration_bias>
 		<migration_speed type="double" units="micron/min" description="change value of migration speed for cells with migration node active">0.9</migration_speed>
@@ -260,9 +260,9 @@
     	<mode_motility type="int" units="" description="not used yet"> 1 </mode_motility>
 		<!-- substrates parameters -->
 		<tumor_radius type="double" units="" description="change the initial radius of the tumor">80</tumor_radius>
-		<ecm_radius type="double" units="" description="change the initial radius of the ECM">100</ecm_radius>
-		<shell_length type="double" units="" description="change the initial radius of the tumor shell">500</shell_length>
-		<tgfbeta_radius type="double" units="" description="change radius of the tgfbeta substrate">90</tgfbeta_radius>
+		<ecm_radius type="double" units="" description="change the initial radius of the ECM">90</ecm_radius>
+		<shell_length type="double" units="" description="change the initial radius of the tumor shell">800</shell_length>
+		<tgfbeta_radius type="double" units="" description="change radius of the tgfbeta substrate">80</tgfbeta_radius>
 		<density_tgfbeta_max type="double" units="" description="change initial density of the tgfbeta substrate">0.4</density_tgfbeta_max>
 		<density_tgfbeta_min type="double" units="" description="change initial density of the tgfbeta substrate">0.4</density_tgfbeta_min>
 		<density_ECM_max type="double" units="" description="change initial density of the ECM substrate">0.5</density_ECM_max>

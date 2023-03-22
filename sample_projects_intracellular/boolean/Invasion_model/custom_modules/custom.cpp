@@ -431,7 +431,7 @@ void custom_cell_attach(Cell* pCell){
 
 		//should I also check the distance between the cells?
 
-		if (junction * otherJunction > PhysiCell::parameters.doubles("cell_junctions_attach_threshold"))
+		if (junction * otherJunction >= PhysiCell::parameters.doubles("cell_junctions_attach_threshold"))
 			attach_cells( neigh[i] , pCell ); 
 
 	}
@@ -446,7 +446,7 @@ void custom_detach_cells(Cell* pCell){
 
 		double otherJunction = cell_attached->custom_data["padhesion"];
 
-		if (junction * otherJunction < PhysiCell::parameters.doubles("cell_junctions_detach_threshold"))
+		if (junction * otherJunction <= PhysiCell::parameters.doubles("cell_junctions_detach_threshold"))
 			detach_cells( cell_attached , pCell );
 
 	};
@@ -621,10 +621,11 @@ void set_oxygen_motility(Cell* pC, bool active)
 		pC->phenotype.motility.migration_bias_direction = pC->nearest_gradient(pC->phenotype.motility.chemotaxis_index);
 		pC->phenotype.motility.migration_bias = PhysiCell::parameters.doubles("migration_bias");
 		pC->phenotype.motility.chemotaxis_direction = 1.0;
-		pC->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed");
+		pC->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed") * get_motility_amplitude(pC->custom_data["pmotility"]);
 		pC->phenotype.motility.persistence_time = PhysiCell::parameters.doubles("persistence");
 		// move up or down gradient based on this direction 
-		pC->phenotype.motility.migration_bias_direction *= pC->phenotype.motility.chemotaxis_direction * get_motility_amplitude(pC->custom_data["pmotility"]); 
+		pC->phenotype.motility.migration_bias_direction *= pC->phenotype.motility.chemotaxis_direction;
+		normalize( &( pC->phenotype.motility.migration_bias_direction ) );
 	}
 	else{
 		//restore to default
@@ -1096,6 +1097,7 @@ std::vector<std::string> ECM_coloring_function( Cell* pCell)
 	std::vector< std::string > output( 4 , "black" );
 	std::string parameter = parameters.strings("parameter_to_visualize");;
 	double param = pCell->custom_data[parameter];
+
 	int color = (int) round( param * 255.0 );
 	if(color > 255){
 		color = 255;
