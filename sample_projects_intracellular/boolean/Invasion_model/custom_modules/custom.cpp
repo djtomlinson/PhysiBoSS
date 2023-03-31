@@ -446,13 +446,11 @@ void custom_detach_cells(Cell* pCell){
 
 		double otherJunction = cell_attached->custom_data["padhesion"];
 
-		if (junction * otherJunction <= PhysiCell::parameters.doubles("cell_junctions_detach_threshold"))
+		if (junction * otherJunction < PhysiCell::parameters.doubles("cell_junctions_detach_threshold"))
 			detach_cells( cell_attached , pCell );
 
 	};
 
-	if (junction == 0.0)
-		pCell->remove_all_attached_cells();
 
 }
 
@@ -616,6 +614,7 @@ void set_oxygen_motility(Cell* pC, bool active)
 	//phenotype.motility.is_motile = active;
 		
 	if (active){
+		pC->phenotype.motility.is_motile = true;
 		pC->phenotype.motility.chemotaxis_index = pC->get_microenvironment()->find_density_index( "oxygen");
 		// bias direction is gradient for the indicated substrate 
 		pC->phenotype.motility.migration_bias_direction = pC->nearest_gradient(pC->phenotype.motility.chemotaxis_index);
@@ -629,6 +628,7 @@ void set_oxygen_motility(Cell* pC, bool active)
 	}
 	else{
 		//restore to default
+		pC->phenotype.motility.is_motile = cell_defaults.phenotype.motility.is_motile;
 		pC->phenotype.motility.chemotaxis_index = cell_defaults.phenotype.motility.chemotaxis_index; 
 		pC->phenotype.motility.migration_bias_direction = cell_defaults.phenotype.motility.migration_bias_direction;
 		pC->phenotype.motility.migration_bias = cell_defaults.phenotype.motility.migration_bias;

@@ -171,12 +171,12 @@
 				</mechanics>
 
 				<motility>  
-					<speed units="micron/min">1.0</speed>
+					<speed units="micron/min">0.3</speed>
 					<persistence_time units="min">0.3</persistence_time>
 					<migration_bias units="dimensionless">0.5</migration_bias>
 					
 					<options>
-						<enabled>true</enabled>
+						<enabled>false</enabled>
 						<use_2D>true</use_2D>
 						<chemotaxis>
 							<enabled>false</enabled>
@@ -252,15 +252,15 @@
 		<cell_junctions_attach_threshold type="double" units="" description="change the threshold needed to attach cells in cluster with cell junction">0.05</cell_junctions_attach_threshold>
 		<cell_junctions_detach_threshold type="double" units="" description="change the threshold needed to detach cells in cluster with cell junction">0.03</cell_junctions_detach_threshold>
 		<!-- motility parameters -->
-		<migration_bias type="double" units="" description="change value of migration bias for cells with migration node active">0.85</migration_bias>
-		<migration_speed type="double" units="micron/min" description="change value of migration speed for cells with migration node active">0.9</migration_speed>
+		<migration_bias type="double" units="" description="change value of migration bias for cells with migration node active">0.8</migration_bias>
+		<migration_speed type="double" units="micron/min" description="change value of migration speed for cells with migration node active">0.7</migration_speed>
 		<persistence type="double" units="min" description="change value of persistence for cells with migration node active">1</persistence>
     	<motility_amplitude_min type="double" units="" description="change the min value of motility amplitude"> 0.1 </motility_amplitude_min>
     	<motility_amplitude_max type="double" units="" description="change the max value of motility amplitude"> 0.8 </motility_amplitude_max>
     	<mode_motility type="int" units="" description="not used yet"> 1 </mode_motility>
 		<!-- substrates parameters -->
 		<tumor_radius type="double" units="" description="change the initial radius of the tumor">80</tumor_radius>
-		<ecm_radius type="double" units="" description="change the initial radius of the ECM">90</ecm_radius>
+		<ecm_radius type="double" units="" description="change the initial radius of the ECM">80</ecm_radius>
 		<shell_length type="double" units="" description="change the initial radius of the tumor shell">800</shell_length>
 		<tgfbeta_radius type="double" units="" description="change radius of the tgfbeta substrate">80</tgfbeta_radius>
 		<density_tgfbeta_max type="double" units="" description="change initial density of the tgfbeta substrate">0.4</density_tgfbeta_max>
