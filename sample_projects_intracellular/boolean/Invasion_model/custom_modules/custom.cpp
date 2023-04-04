@@ -367,11 +367,11 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 		freezing(pCell, 1);
 	}
 	*/
-	/*
+	
 	if ( pCell->phenotype.intracellular->has_variable( "Cell_freeze" ) ){
-		freezer(pCell, 3 * pCell->phenotype.intracellular->get_boolean_variable_value( "Cell_freeze" ));
+		pCell->phenotype.motility.is_motile = !(pCell->phenotype.intracellular->get_boolean_variable_value("Cell_freeze"));
 	}
-	*/
+	
 	//pCell->phenotype.intracellular->print_current_nodes();
 }
 
