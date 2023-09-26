@@ -269,18 +269,15 @@
 		<TNFR_endocytosis_rate_min type="double" units="dimensionless" description="TNF receptor-TNF endocytosis rate min">0.05</TNFR_endocytosis_rate_min>
 		<TNFR_endocytosis_rate_max type="double" units="dimensionless" description="TNF receptor-TNF endocytosis rate max">0.95</TNFR_endocytosis_rate_max>
 
-<<<<<<< HEAD
 		<!-- <TNFR_recycling_rate_std type="double" units="dimensionless" description="TNF receptor recycling std">0.237</TNFR_recycling_rate_std> -->
 		<TNFR_recycling_rate_std type="double" units="dimensionless" description="TNF receptor recycling std">0.0</TNFR_recycling_rate_std>
 		<TNFR_recycling_rate_min type="double" units="dimensionless" description="TNF receptor recycling min">0.05</TNFR_recycling_rate_min>
 		<TNFR_recycling_rate_max type="double" units="dimensionless" description="TNF receptor recycling max">0.95</TNFR_recycling_rate_max>
-=======
 		<time_add_tnf type="int" units="min">150</time_add_tnf> <!-- 150 -->
 		<duration_add_tnf type="int" units="min">10</duration_add_tnf> <!-- 10 -->
 		<concentration_tnf type="double" units="TNF/um^3"> 0.05 </concentration_tnf> <!-- 0.5 ng/mL -->
 		<time_remove_tnf type="int" units="min">100000</time_remove_tnf> <!-- 8000 -->
 		<membrane_length type="int" units=""> 470 </membrane_length>
->>>>>>> 451f1661 (cleaning spheroid_tnf)
 
 		<tnf_pulse_period type="double" units="min">150.0</tnf_pulse_period> 
 		<tnf_pulse_duration type="double" units="min">10.0</tnf_pulse_duration> 
