@@ -22,3 +22,6 @@ project
 initial.svg
 initial.svg
 interaction_demo
+.vscode
+*.tar.gz
+addons/PhysiBoSS/MaBoSS-env-2.0/*
