@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-11
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run : brew install gcc@10
@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-11
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run : brew install gcc@11
@@ -44,3 +44,23 @@ jobs:
     - name: Run PhysiBoSS cell lines project
       run: |
         ./PhysiBoSS_Cell_Lines
+        
+  build_spheroid_TNF_model:
+
+    runs-on: macos-11
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run : brew install gcc@11
+      
+    - name: Build PhysiBoSS TNF project
+      run: |
+        make physiboss-tnf-model
+        make clean
+        make PHYSICELL_CPP=g++-11
+        
+    - name: Run PhysiBoSS TNF project
+      run: |
+        ./spheroid_TNF_model
