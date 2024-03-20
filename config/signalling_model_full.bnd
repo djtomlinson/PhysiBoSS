@@ -1,0 +1,77 @@
+Node DKKI {
+  logic = WNT & SOX17;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node WNT {
+  logic = WNT & NODAL & (!DKKI);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node NODAL {
+  logic = WNT & NODAL & (!CERI);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node CERI {
+  logic = SOX17 & NODAL;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node OCT4 {
+  logic = SOX2 & (!WNT);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node BMP2 {
+  logic = NODAL;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node SOX2 {
+  logic = OCT4 & (!TBXT);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node TBXT {
+  logic = WNT & NODAL;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node FOXA2 {
+  logic = WNT & NODAL;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node HANDI {
+  logic = WNT & BMP2 & (!NODAL);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node TBX6 {
+  logic = SOX2 & WNT & TBXT;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node NOTO {
+  logic = FOXA2 & WNT & TBXT & (!NODAL);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node SOX17 {
+  logic = FOXA2 & NODAL & TBXT;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
