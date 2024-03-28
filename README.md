@@ -3,9 +3,9 @@ The executable is already compiled, simply run
 ~~~bash
 ./WNT-BMP4-NODAL_micropatterns
 ~~~
-edit setting XML in ./config
-edit Boolean networks in ./config
-when editing any C++ code recompile
+* edit settings XML in ./config
+* edit Boolean networks in ./config
+* when editing any C++ code recompile
 
 <img align="right" height="200" src="https://github.com/sysbio-curie/MaBoSS-env-2.0/assets/22156824/b1b9a843-a203-42e6-8f8f-1acd2e2f5285">
 
