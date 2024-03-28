@@ -2,11 +2,6 @@
 Run:
 ~~~bash
 make
-./WNT-BMP4-NODAL_micropatterns
-~~~
-
-If "BNerror" or similar encountered:
-~~~bash
 make reset
 ./WNT-BMP4-NODAL_micropatterns
 ~~~
