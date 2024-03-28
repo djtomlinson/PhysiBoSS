@@ -1,7 +1,19 @@
 # Micropattern Specifics
-The executable is already compiled, simply run
+Run:
 ~~~bash
+make
 ./WNT-BMP4-NODAL_micropatterns
+~~~
+
+If "BNerror" or similar encountered:
+~~~bash
+make reset
+./WNT-BMP4-NODAL_micropatterns
+~~~
+
+Python script to visualise SVG:
+~~~bash
+python beta/plot_cells.py
 ~~~
 * edit settings XML in ./config
 * edit Boolean networks in ./config
