@@ -11,7 +11,7 @@ Node WNT{
 }
 
 Node NODAL{
-  logic = (WNT & ($auto_inhib)) OR (NODAL & ($auto_inhib));
+  logic = (WNT & !($auto_inhib)) OR (NODAL & ($auto_inhib));
   rate_up  = @logic ? $time_scale : 0;
   rate_down  = @logic ? $return_prob : $time_scale;
 }
