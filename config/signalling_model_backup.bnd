@@ -1,0 +1,17 @@
+Node BMP4{
+  logic = BMP4;
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node WNT{
+  logic = (WNT & BMP4);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
+
+Node NODAL{
+  logic = (WNT & NODAL);
+  rate_up  = @logic ? $time_scale : 0;
+  rate_down  = @logic ? 0 : $time_scale;
+}
