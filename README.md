@@ -1,4 +1,4 @@
-#Micropattern Specifics#
+# Micropattern Specifics
 The executable is already compiled, simply run
 ~~~bash
 ./WNT-BMP4-NODAL_micropatterns
